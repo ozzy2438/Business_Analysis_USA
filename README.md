@@ -1,179 +1,177 @@
-# Business_Analysis_USA
-
-## Dashboard Screenshots
-
-### Business Readiness Overview Dashboard
-<img width="2864" height="1630" alt="Business Readiness Overview Dashboard" src="https://github.com/user-attachments/assets/34270a55-2e22-453f-a517-df20d46d6340" />
-
-### County Rankings and Opportunity Analysis
-<img width="2878" height="1622" alt="County Rankings and Opportunity Analysis" src="https://github.com/user-attachments/assets/74d35722-a138-45ce-bc9c-8822d1fd89a4" />
-
-### Industry Growth Distribution Analysis
-<img width="2874" height="1618" alt="Industry Growth Distribution Analysis" src="https://github.com/user-attachments/assets/002594a2-ef67-469c-97ba-203b1359ec8a" />
-
-Additional screenshots are available in the [screenshots folder](screenshots/)
-
-
-
 # Business Readiness USA — County Expansion Analytics
 
-**A practical, end‑to‑end framework to identify the best US counties for business expansion.**  
-Data modeled in **SQL**, engineered & validated with **Python**, and delivered as an interactive **Power BI** dashboard.
+Clean, auditable analytics to identify the best US counties for business expansion. Data engineered in Python, modeled for SQL/BI, and delivered with clear, decision‑ready outputs.
+
+## Quick links
+
+- Notebook: `Business_Readiness_USA.ipynb`
+- SQL logic: `county_business_readiness_sql/`
+- Screenshots: `screenshots/`
+- Dataset (CBP 2020–2023 + Census population): [Google Drive](https://drive.google.com/drive/folders/1dgOh9Ek3PHLVu7hQ_Kt7hpJ7LANWfHvU?usp=drive_link)
 
 ---
 
-## Table of Contents
-- [Business\_Analysis\_USA](#business_analysis_usa)
-  - [Dashboard Screenshots](#dashboard-screenshots)
-    - [Business Readiness Overview Dashboard](#business-readiness-overview-dashboard)
-    - [County Rankings and Opportunity Analysis](#county-rankings-and-opportunity-analysis)
-    - [Industry Growth Distribution Analysis](#industry-growth-distribution-analysis)
-- [Business Readiness USA — County Expansion Analytics](#business-readiness-usa--county-expansion-analytics)
-  - [Table of Contents](#table-of-contents)
-  - [Project Overview](#project-overview)
-  - [Problem \& Objectives](#problem--objectives)
-  - [What’s in this Repo](#whats-in-this-repo)
-  - [Data Pipeline (SQL → Python → Power BI)](#data-pipeline-sql--python--power-bi)
-  - [Key Metrics \& Business Logic](#key-metrics--business-logic)
-  - [Results at a Glance](#results-at-a-glance)
-  - [How to Run](#how-to-run)
-  - [Dataset](#dataset)
-  - [Lessons Learned](#lessons-learned)
-  - [Screenshots](#screenshots)
-    - [Business Readiness Overview Dashboard](#business-readiness-overview-dashboard-1)
-    - [County Rankings and Opportunity Analysis](#county-rankings-and-opportunity-analysis-1)
-    - [Industry Growth Distribution Analysis](#industry-growth-distribution-analysis-1)
-  - [Contact](#contact)
+## Background & Overview
+
+This project evaluates and ranks all US counties using growth, structure, and specialization signals to support expansion planning. The goal is to transform raw County Business Patterns (CBP) and Census population data into a transparent “Opportunity Score” and tiering system that helps business and strategy teams answer:
+
+- Where should we expand next?
+- Which places are resilient vs. high‑risk?
+- Which industry mixes underpin durable establishment and employment growth?
+
+The output includes ranked county tables, specialization profiles, and geo‑ready layers suitable for BI dashboards.
 
 ---
 
-## Project Overview
-**Business Readiness USA** evaluates and ranks every US county using growth, diversity, and specialization signals to answer three questions:
-1) *Where should we expand next?*  
-2) *Which places are stable vs. high‑risk?*  
-3) *Which industry mixes correlate with durable establishment & employment growth?*
+## Data Structure Overview
 
-Deliverables:
-- Clean, analysis‑ready SQL tables (single source of truth)
-- Reproducible Python notebook for feature engineering & validation
-- A Power BI report for exploration, ranking, and storytelling
+- Sources
+  - CBP county files (2020–2023): establishments and employment by NAICS.
+  - Census county population (2024 release): total population by county; 2022 used for per‑capita normalization.
 
----
+- Core outputs (CSV/GeoJSON/Parquet where relevant)
+  - `county_business_readiness_2023.csv`: master table with Opportunity Score, tier, growth, per‑capita density, diversity, specialization summary, top industry LQ.
+  - `county_industry_mix_2023.csv`: county × NAICS‑2 establishments, shares, and LQ.
+  - `county_industry_clusters_2023.csv`: k‑means cluster (k=5), specialization flags, mean shares by strategy bucket.
+  - `county_opportunity_drivers.csv`: z‑scored inputs used in scoring (clipped ±3) for auditability.
+  - `county_growth_2020_2023_with_industry.csv`: growth panel and top‑5 NAICS LQs per county.
 
-## Problem & Objectives
-**Problem.** Expansion teams need a defensible way to compare counties across the US using consistent metrics—not anecdotes.
+- Key columns (selected)
+  - `FIPS` (text 5): primary key across all outputs; zero‑padded.
+  - `estab_growth_pct`, `empl_growth_pct`: 2020→2023 percentage change (county totals).
+  - `estab_per_1k`, `empl_per_1k`: 2023 per‑capita density using 2022 population.
+  - `diversity`: 1 − HHI over NAICS‑2 shares (higher = more diverse).
+  - `top1_naics`, `top1_LQ_capped`: dominant NAICS‑2 and capped LQ (≤10).
+  - `opportunity_score`, `opportunity_tier`: composite score and A/B/C/D banding.
 
-**Objectives.**
-- Build a transparent, repeatable pipeline from raw CBP to an **Opportunity Score** and **Tiering (A–E)**.
-- Detect **high‑risk** counties and **multi‑specialized** economies (≥3 specializations).
-- Publish an interactive dashboard with executive KPIs, a national map, rankings, and drivers.
+- Methods (Python highlights)
+  - Type‑safe ingestion, FIPS normalization, robust NAICS filtering.
+  - Location Quotients (county share / US share) with outlier capping at 10.
+  - Diversity (HHI) computed on NAICS‑2 shares; row‑normalized matrices.
+  - K‑means clustering (k=5) on share vectors to profile economic types.
+  - Scoring via weighted z‑scores (clipped ±3):
+    - Weights: establishments growth 0.35, employment growth 0.20, establishments per‑1k 0.20, diversity 0.15, multi‑specialization (≥2) 0.10.
+    - If industry features are missing, diversity and multi‑specialization contributions are set to 0.
 
----
+- Key terms & abbreviations
+  - FIPS: Federal Information Processing Series county code (5‑char text).
+  - NAICS‑2: 2‑digit industry code.
+  - LQ: Location Quotient (county share ÷ US share), capped at 10 for reporting.
+  - HHI: Herfindahl–Hirschman Index; diversity = 1 − HHI.
+  - per‑1k: per 1,000 residents (population = 2022).
 
-## What’s in this Repo
+ERD (logical view)
+
+```mermaid
+erDiagram
+    county_business_readiness_2023 ||--o{ county_industry_mix_2023 : "FIPS"
+    county_business_readiness_2023 ||--o{ county_industry_clusters_2023 : "FIPS"
+    county_business_readiness_2023 ||--o{ county_opportunity_drivers : "FIPS"
+    county_business_readiness_2023 ||--o{ county_growth_2020_2023_with_industry : "FIPS"
+
+    county_business_readiness_2023 {
+      string FIPS PK
+      float estab_growth_pct
+      float empl_growth_pct
+      float estab_per_1k
+      float diversity
+      int total_specializations
+      float opportunity_score
+      string opportunity_tier
+    }
+    county_industry_mix_2023 {
+      string FIPS FK
+      string naics2
+      int est_2023
+      float share_2023
+      float LQ_2023
+    }
+    county_industry_clusters_2023 {
+      string FIPS FK
+      float diversity
+      int cluster_5
+      int Retail_Services_specialized
+      int Pro_Tech_specialized
+      int Health_Edu_specialized
+      int Manufacturing_specialized
+      int Logistics_Trade_specialized
+      string top1_naics
+      float top1_LQ
+    }
+    county_opportunity_drivers {
+      string FIPS FK
+      float z_estab_growth
+      float z_empl_growth
+      float z_estab_per_1k
+      float z_diversity
+      float multi_spec_adj
+    }
+    county_growth_2020_2023_with_industry {
+      string FIPS FK
+      int est_2020
+      int est_2023
+      int emp_2020
+      int emp_2023
+      float estab_growth_pct
+      float empl_growth_pct
+      float pop_2022
+      float estab_per_1k
+      float empl_per_1k
+      string top1_naics
+      float top1_LQ
+      int total_specializations
+    }
 ```
-Business_Analysis_USA/
-├─ sql/
-│  ├─ 01_data_exploration.sql
-│  ├─ 02_opportunity_scoring.sql
-│  ├─ 03_kpi_calculations.sql
-│  ├─ 04_ranking_matrices.sql
-│  ├─ 05_industry_specialization.sql
-│  └─ 06_growth_analysis.sql
-├─ notebooks/
-│  └─ Business_Readiness_USA.ipynb
-├─ screenshots/
-│  ├─ business_readiness_overview_dashboard.jpg
-│  ├─ county_rankings_opportunity_analysis.jpg
-│  └─ industry_growth_distribution_analysis.jpg
-└─ README.md
-```
 
 ---
 
-## Data Pipeline (SQL → Python → Power BI)
+## Executive Summary
 
-**SQL (modeling & QA)**
-- Normalize CBP 2020–2023, enforce **zero‑padded FIPS** keys.
-- Compute establishment & employment growth, per‑capita density, and specialization features.
-- Materialize clean fact tables: e.g., `county_business_readiness_2023`, `county_industry_mix_2023`, `county_opportunity_drivers`, `county_rankings_topline`.
-
-**Python (feature engineering & validation)**
-- Standardize inputs, mitigate outliers, and assemble the **Opportunity Score**.
-- Validate correlations and stability across years; export `*.parquet` for BI.
-- (Optional) Build a choropleth with county **GeoJSON** for QA.
-
-**Power BI (delivery)**
-- KPI cards + national map + rankings + drivers.
-- Slicers for **STNAME**, **opportunity_tier**, **risk_category**, **total_specializations**.
+This pipeline ranks 3,181 US counties and produces geo‑ready outputs for BI. Tiering concentrates attention: 314 Tier‑A and 626 Tier‑B counties (50 with incomplete industry features flagged). Average 2020→2023 establishment growth is ~4.9% and employment growth ~6.0%. Results are audit‑ready (z‑scored inputs, LQ caps) and mapped for 3,131 counties.
 
 ---
 
-## Key Metrics & Business Logic
-- **Opportunity Score** — composite index of growth & structure signals.
-- **Opportunity Percentile / Tier (A–E)** — rank & banding for prioritization.
-- **High‑Risk** — rule/score‑based flag combining weak growth + low diversity.
-- **Multi‑Specialized (≥3)** — counties with broader competitive strengths.
-- **Market Potential** — index capturing size/structure pull for expansion.
-- **Expansion Ready** — top decile (P90+) on readiness composite.
+## Insights Deep Dive
 
-> Map note: Use **FIPS** as 5‑character *Text* (`FORMAT([FIPS], "00000")`) or join to GeoJSON on `GEOID`.
-
----
-
-## Results at a Glance
-Snapshot from the latest run (may vary with refresh):
-- **Total counties:** **3,181**
-- **Top opportunity score:** **1,214**
-- **Average establishment growth:** **4.87%**
-- **High‑risk counties:** **264**
-- **Tier‑A counties:** **779**
-- **Multi‑specialized (≥3):** **1,494**
-- **Market potential leader (index):** **33,374**
-- **Expansion‑ready (P90+):** **312**
+- **Growth dynamics**: Mean establishment growth 4.9% (median 3.7%); mean employment growth 6.0% (median 3.0%).
+- **Per‑capita density**: Establishments per‑1k mean 118.6 (range ~9.1 to ~1085.1); employment per‑1k mean 1,372.4 (range ~51.9 to ~23,361.7). Small‑population counties can exhibit extreme per‑capita and LQ values.
+- **Diversity (structure)**: HHI mean 0.120 (diversity mean 0.880; median 0.899). Lower HHI is associated with more balanced industry mixes.
+- **Specialization coverage (LQ ≥ 1.25)**: Retail/Services 83.1%, Logistics/Trade 55.7%, Manufacturing 42.3%, Pro/Tech 41.3%, Health/Edu 15.0%. 2,540 counties show multi‑specialization (≥2 buckets).
+- **LQ outliers**: 824 counties hit the LQ cap of 10 for their top industry; capping is applied to stabilize comparisons and visuals.
+- **Geo join coverage**: 3,131 of 3,235 county polygons matched; 50 are listed in `exports/missing_geometry_counties.csv` for follow‑up.
 
 ---
 
-## How to Run
-1. Clone the repo.
-2. (Optional) Build features with the notebook in `/notebooks` and export to `parquet/csv`.
-3. Load the processed data to your SQL warehouse **or** import directly into Power BI.
-4. In Power BI, ensure **FIPS is Text** (5 chars). If needed:  
-   `FIPS_str = FORMAT('county_business_readiness_2023'[FIPS], "00000")`
-5. Use `FIPS_str` for map Location; color by `opportunity_score`; add slicers for `STNAME`, `opportunity_tier`, `risk_category`, `total_specializations`.
+## Recommendations
+
+- **Prioritize Tier‑A markets** for immediate expansion; short‑list Tier‑B counties with multi‑specialization and strong per‑capita density.
+- **Target segments by specialization** (e.g., Logistics/Trade and Retail/Services) with tailored outreach and partner development.
+- **Balance specialization with diversity**: favor counties with strong LQs but moderate HHI (higher diversity) to mitigate sector risk.
+- **Monitor low‑growth counties** with high specialization for signs of structural change; consider staged entry or partnerships.
+- **Operationalize**: load the master table into your data warehouse and plug into BI for ongoing refresh (retain LQ caps and z‑score clipping for stability).
 
 ---
 
-## Dataset
-Full datasets (2020–2023):  
-👉 [Download from Google Drive](https://drive.google.com/drive/folders/1dgOh9Ek3PHLVu7hQ_Kt7hpJ7LANWfHvU?usp=drive_link)
+## Caveats & Assumptions
+
+- CBP suppressions (`N`) are treated as missing; totals exclude NAICS "all‑sector" roll‑ups.
+- Population uses Census 2022 (AGEGRP=0) for per‑capita normalization.
+- LQs are capped at 10 to reduce dominance of small‑base counties; counts of capped observations are disclosed.
+- 50 counties did not join to geometry in the 2022 county shapefile; see `exports/missing_geometry_counties.csv`.
+- Some micro counties exhibit extreme per‑capita/LQ metrics due to very small populations; interpret paired with diversity and growth.
+- Scoring inputs are z‑scored with clipping (±3); counties lacking industry features have diversity/multi‑specialization contributions set to 0.
 
 ---
 
-## Lessons Learned
-- **Geography keys matter.** Mapping issues (“undefined”) disappear when FIPS is padded to 5‑char **Text** and joined consistently to GeoJSON `GEOID`.
-- **Scale vs. limits.** SQL Server parameter limits were avoided by writing in **small chunks** from Python during bulk operations.
-- **Explainable scoring.** Keeping intermediate drivers (growth %, per‑1k, diversity, LQ caps) makes the score auditable and easy to defend.
-- **Design for decisions.** KPI cards + tiering + slicers let stakeholders jump from national to county‑level actions in seconds.
+### Screenshots (selected)
+
+- Business Readiness Overview Dashboard  
+  ![Business Readiness Overview Dashboard](screenshots/business_readiness_overview_dashboard.jpg)
+- County Rankings & Opportunity Analysis  
+  ![County Rankings and Opportunity Analysis](screenshots/county_rankings_opportunity_analysis.jpg)
+- Industry Growth Distribution Analysis  
+  ![Industry Growth Distribution Analysis](screenshots/industry_growth_distribution_analysis.jpg)
 
 ---
 
-## Screenshots
-
-### Business Readiness Overview Dashboard
-![Business Readiness Overview Dashboard](screenshots/business_readiness_overview_dashboard.jpg)  
-<sub>Executive KPIs with national map; quick scan of opportunity, risk, and readiness.</sub>
-
-### County Rankings and Opportunity Analysis
-![County Rankings and Opportunity Analysis](screenshots/county_rankings_opportunity_analysis.jpg)  
-<sub>Sortable rankings with tier badges, growth labels, and tooltips.</sub>
-
-### Industry Growth Distribution Analysis
-![Industry Growth Distribution Analysis](screenshots/industry_growth_distribution_analysis.jpg)  
-<sub>Drivers view: opportunity vs. growth scatter, specialization counts, and top‑15 bars.</sub>
-
----
-
-## Contact
-**Osman Orka** — Data Analytics / BI / Data Science  
-GitHub: `ozzy2438` · Email: *(add your preferred address)*
+Contact: `ozzy2438` (GitHub)
