@@ -1,0 +1,4 @@
+# ignore ALL large data anywhere
+*.csv
+*.txt
+DATA/**
