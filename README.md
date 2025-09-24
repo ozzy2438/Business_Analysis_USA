@@ -127,6 +127,13 @@ erDiagram
 
 ## Executive Summary
 
+**Accomplished [X] as measured by [Y] by doing [Z]**
+
+*Example format:*
+- **X**: Improved customer retention by 15%
+- **Y**: using an Excel KPI dashboard
+- **Z**: By data-driven email marketing campaigns
+
 This pipeline ranks 3,181 US counties and produces geo‑ready outputs for BI. Tiering concentrates attention: 314 Tier‑A and 626 Tier‑B counties (50 with incomplete industry features flagged). Average 2020→2023 establishment growth is ~4.9% and employment growth ~6.0%. Results are audit‑ready (z‑scored inputs, LQ caps) and mapped for 3,131 counties.
 
 ---
