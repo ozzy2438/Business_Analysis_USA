@@ -2,6 +2,9 @@
 
 Clean, auditable analytics to identify the best US counties for business expansion. Data engineered in Python, modeled for SQL/BI, and delivered with clear, decision‑ready outputs.
 
+## 📺 Project Demo Video
+**🎥 [Business Analytics Deep Dive](https://www.canva.com/design/DAGzZokh-Fs/PBTwYHBKexS1d7V_NJgiVQ/edit?utm_content=DAGzZokh-Fs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)** *(County ranking methodology & expansion strategy demonstration)*
+
 ## Quick links
 
 - Notebook: `Business_Readiness_USA.ipynb`
@@ -13,7 +16,7 @@ Clean, auditable analytics to identify the best US counties for business expansi
 
 ## Background & Overview
 
-This project evaluates and ranks all US counties using growth, structure, and specialization signals to support expansion planning. The goal is to transform raw County Business Patterns (CBP) and Census population data into a transparent “Opportunity Score” and tiering system that helps business and strategy teams answer:
+This project evaluates and ranks all US counties using growth, structure, and specialization signals to support expansion planning. The goal is to transform raw County Business Patterns (CBP) and Census population data into a transparent "Opportunity Score" and tiering system that helps business and strategy teams answer:
 
 - Where should we expand next?
 - Which places are resilient vs. high‑risk?
