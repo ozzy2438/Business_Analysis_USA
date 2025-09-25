@@ -2,8 +2,10 @@
 
 Clean, auditable analytics to identify the best US counties for business expansion. Data engineered in Python, modeled for SQL/BI, and delivered with clear, decision‑ready outputs.
 
-## 📺 Project Demo Video
-**🎥 [Business Analytics Deep Dive](https://www.canva.com/design/DAGzZokh-Fs/PBTwYHBKexS1d7V_NJgiVQ/edit?utm_content=DAGzZokh-Fs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)** *(County ranking methodology & expansion strategy demonstration)*
+## 📺 Business Analytics Deep Dive
+[![Business Analytics Demo](https://img.shields.io/badge/🎥_Watch_Demo-County_Ranking_Methodology-green?style=for-the-badge)](https://www.canva.com/design/DAGz8viPYlM/Vw4Jbiq0ytMKiNwHjXuQug/edit?utm_content=DAGz8viPYlM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+*County ranking methodology & expansion strategy demonstration - US business readiness analysis*
 
 ## Quick links
 
