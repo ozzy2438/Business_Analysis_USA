@@ -5,6 +5,9 @@ Clean, auditable analytics to identify the best US counties for business expansi
 ## 📺 Business Analytics Deep Dive
 [![Business Analytics Demo](https://img.shields.io/badge/🎥_Watch_Demo-County_Ranking_Methodology-green?style=for-the-badge)](https://www.canva.com/design/DAGz8viPYlM/Vw4Jbiq0ytMKiNwHjXuQug/edit?utm_content=DAGz8viPYlM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
+## 🎥 Demo Video  
+
+https://github.com/user-attachments/assets/87c59ea4-f809-49a1-b720-c89c6c86295d
 
 *County ranking methodology & expansion strategy demonstration - US business readiness analysis*
 
